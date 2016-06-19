@@ -3,7 +3,6 @@
 
 from Crypto.Cipher import AES
 from mutagen import File
-import os
 import json
 import base64
 import sys
@@ -112,19 +111,3 @@ def append_metadata(track_file, expected_tags):
         del(metadata['copyright'])
 
     metadata.save()
-
-
-def main():
-    path = u'/Users/bfeng/Music/copy'
-    for filename in os.listdir(path):
-        track_file = path + '/' + filename
-        try:
-            tags = parse_tags(track_file)
-            # print_netease_music_tags(tags)
-            append_metadata(track_file, tags)
-        except ValueError:
-            pass
-
-
-if __name__ == "__main__":
-    main()
