@@ -75,8 +75,8 @@ def main():
     parser_sync.add_argument("to", help="to path")
 
     parser_cp_itunes = subparsers.add_parser('cp_itunes', help='Copy files to iTunes library')
-    parser_cp_itunes.add_argument("iTunes", help="Path to iTunes root folder")
     parser_cp_itunes.add_argument("netease", help="Netease Music Folder")
+    parser_cp_itunes.add_argument("iTunes", help="Path to iTunes root folder")
 
     args = parser.parse_args()
 

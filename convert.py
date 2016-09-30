@@ -6,6 +6,7 @@ from mutagen import File
 import json
 import base64
 import sys
+import warnings
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -59,7 +60,7 @@ def parse_tags(track_file):
         raise ValueError(u'File type is not supported: %s', track_file)
 
     track = File(track_file)
-    if track.has_key("COMM::XXX"):
+    if "COMM::XXX" in track:
         meta_json = str(track["COMM::XXX"])
         if meta_json.startswith("163 key"):
             encrypted_json = meta_json.split(':')[1]
@@ -73,10 +74,12 @@ def parse_tags(track_file):
         else:
             raise ValueError(u'Music tag not found: %s', track_file)
     else:
-        raise ValueError(u"Track not identified: %s", track_file)
+        warnings.warn(u"Track not identified: {0}".format(track_file))
 
 
 def append_metadata(track_file, expected_tags):
+    if track_file is None or expected_tags is None:
+        return
     metadata = File(track_file, easy=True)
     # print unicode(track_file), "=============>",
     if 'musicName' in expected_tags:
