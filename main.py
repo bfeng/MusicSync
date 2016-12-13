@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
+from musicsync.actions import FixAction, CopyAction, Copy2iTunesAction
+
 import os
 import argparse
 import sys
@@ -9,7 +11,7 @@ reload(sys)
 sys.setdefaultencoding('utf-8')
 sys.path.append('pyitunes')
 
-from convert import parse_tags, print_netease_music_tags, append_metadata
+# from convert import parse_tags, print_netease_music_tags, append_metadata
 from pyItunes import Library
 
 
@@ -63,33 +65,30 @@ def cp_itunes(iTunes_path, netease_music_path):
                 copy_2_iTunes(track_file, iTunes_path)
 
 
+def attach_actions(main_parser, action_dict, action):
+    action_dict[action.get_name()] = action
+    action_parser = main_parser.add_parser(action.get_name(), help=action.get_help())
+    action.attach_arguments(action_parser)
+
+
 def main():
+    action_dict = {}
     parser = argparse.ArgumentParser()
     subparsers = parser.add_subparsers(dest="action")
 
-    parser_id3 = subparsers.add_parser("fix", help="fix id3 tags for Netease music file/files")
-    parser_id3.add_argument("path", help="specify file path")
-
-    parser_sync = subparsers.add_parser("cp", help="copy files and fix id3 tags")
-    parser_sync.add_argument("from", help="from path")
-    parser_sync.add_argument("to", help="to path")
-
-    parser_cp_itunes = subparsers.add_parser('cp_itunes', help='Copy files to iTunes library')
-    parser_cp_itunes.add_argument("netease", help="Netease Music Folder")
-    parser_cp_itunes.add_argument("iTunes", help="Path to iTunes root folder")
+    attach_actions(subparsers, action_dict, FixAction())
+    attach_actions(subparsers, action_dict, CopyAction())
+    attach_actions(subparsers, action_dict, Copy2iTunesAction())
 
     args = parser.parse_args()
 
-    print "\n"
-
     args = vars(args)
 
-    if args['action'] == 'fix':
-        print "fix " + args['path']
-    elif args['action'] == 'cp':
-        print "cp " + args['from'] + " " + args['to']
-    elif args['action'] == 'cp_itunes':
-        cp_itunes(args['iTunes'], args['netease'])
+    action_key = args['action']
+
+    if action_key in action_dict:
+        action = action_dict[action_key]
+        action.execute(args)
 
 
 if __name__ == "__main__":
