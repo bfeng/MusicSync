@@ -2,6 +2,15 @@
 
 This software contains a set of console commands to copy songs between folders enabling ID3 tags correction. It features copying MP3 files, fixing ID3 tags from NeteaseMusic MP3 files and importing into iTunes music library. A GUI is under development and will be launched in future.
 
+## Install
+
+1. Clone or download source code
+
+2. Install dependencies
+```bash
+pip install -r requirements.txt
+```
+
 ## Usage
 All commands should be run in the following pattern with a Python interpreter. Example:
 ```bash
