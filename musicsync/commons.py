@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 from Crypto.Cipher import AES
@@ -6,6 +5,7 @@ from mutagen import File
 import json
 import base64
 import sys
+import warnings
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -35,6 +35,7 @@ def parse_netease_music_artist(music_tags):
 
 
 def print_netease_music_tags(music_tags):
+    print music_tags
     line = ''
     line += parse_netease_music_artist(music_tags)
     title = music_tags['musicName']
@@ -59,7 +60,7 @@ def parse_tags(track_file):
         raise ValueError(u'File type is not supported: %s', track_file)
 
     track = File(track_file)
-    if track.has_key("COMM::XXX"):
+    if "COMM::XXX" in track:
         meta_json = str(track["COMM::XXX"])
         if meta_json.startswith("163 key"):
             encrypted_json = meta_json.split(':')[1]
@@ -73,10 +74,12 @@ def parse_tags(track_file):
         else:
             raise ValueError(u'Music tag not found: %s', track_file)
     else:
-        raise ValueError(u"Track not identified: %s", track_file)
+        warnings.warn(u"Track not identified: {0}".format(track_file))
 
 
 def append_metadata(track_file, expected_tags):
+    if track_file is None or expected_tags is None:
+        return
     metadata = File(track_file, easy=True)
     # print unicode(track_file), "=============>",
     if 'musicName' in expected_tags:
@@ -111,3 +114,43 @@ def append_metadata(track_file, expected_tags):
         del(metadata['copyright'])
 
     metadata.save()
+
+
+def parse_file(track_file):
+    if track_file.lower().endswith("mp3") is not True:
+        raise ValueError(u'File type is not supported: %s', track_file)
+    music_name = track_file.lower()
+    music_name = music_name[:music_name.rindex(".mp3")]
+    return music_name
+
+
+def check_iTunes_music(tracks, music_name):
+    for song in tracks:
+        song_music_name = "{0} - {1}".format(song.artist, song.name).lower()
+        if music_name == song_music_name:
+            return u"Found"
+        elif music_name.find(song.name) >= 0:
+            return u"Possible: " + song_music_name
+    return u"Nope"
+
+
+def cp_itunes(iTunes_path, netease_music_path):
+    # print "cp_itunes", iTunes_library_xml, netease_music_path
+
+    # Unicode path is not supported for the xml file
+    iTunes_library_xml = iTunes_path + '/iTunes Music Library.xml'
+    tracks = load_iTunes_library(iTunes_library_xml)
+
+    for filename in os.listdir(netease_music_path):
+        music_name = parse_file(filename)
+        if check_iTunes_music(tracks, music_name) == u"Nope":
+            track_file = netease_music_path + u"/" + filename
+            # with open(track_file, "r") as f:
+            #     print f.name
+            if os.path.exists(track_file):
+                tags = parse_tags(track_file)
+                # print_netease_music_tags(tags)
+                append_metadata(track_file, tags)
+                copy_2_iTunes(track_file, iTunes_path)
+
+
