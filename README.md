@@ -42,4 +42,9 @@ python main.py print ~/Music/网易云音乐/*
 python main.py cp_itunes "~/Music/网易云音乐" "/Users/bfeng/Music/iTunes"
 ```
 
+- `rsync`
+
+**Under development**
+
+
 - `help`
