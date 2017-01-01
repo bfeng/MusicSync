@@ -12,7 +12,24 @@ python main.py <action> [parameters]
 
 There are several actions available. Each action comes with different parameters.
 
+- `print`
+
+```bash
+python main.py print ~/Music/网易云音乐/song.mp3
+python main.py print ~/Music/网易云音乐/*
+```
+
 - `fix`
-- `cp`
+
+```bash
+python main.py fix -dryrun "~/Music/网易云音乐/song.mp3"
+python main.py fix "~/Music/网易云音乐/song.mp3"
+```
+
 - `cp_itunes`
+
+```bash
+python main.py cp_itunes "~/Music/网易云音乐" "/Users/bfeng/Music/iTunes"
+```
+
 - `help`

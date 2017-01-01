@@ -1,4 +1,4 @@
 six
 mutagen
-Crypto
-pyItunes
+pycrypto
+termcolor
