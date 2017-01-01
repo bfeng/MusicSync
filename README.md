@@ -24,6 +24,7 @@ python main.py print ~/Music/网易云音乐/*
 ```bash
 python main.py fix -dryrun "~/Music/网易云音乐/song.mp3"
 python main.py fix "~/Music/网易云音乐/song.mp3"
+python main.py print ~/Music/网易云音乐/*
 ```
 
 - `cp_itunes`
