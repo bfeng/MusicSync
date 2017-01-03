@@ -6,15 +6,15 @@ This software contains a set of console commands to copy songs between folders e
 
 1. Clone or download source code
 
-2. For first time Mac users who do not have `pip installed, please install `pip` with `easy_install`
-```bash
-sudo easy_install pip
-```
+2. For first time Mac users who do not have `pip` installed, please install `pip` with `easy_install`
+    ```bash
+    sudo easy_install pip
+    ```
 
 3. Install dependencies
-```bash
-pip install -r requirements.txt
-```
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Usage
 All commands should be run in the following pattern with a Python interpreter. Example:
