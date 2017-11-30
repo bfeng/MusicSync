@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from mutagen import File
-from mutagen.id3 import TALB, TIT2, TPE1
+from mutagen import id3
 from pyItunes import Library
 import os
 import warnings
@@ -35,8 +35,9 @@ class BaseLibraryManager(object):
             self.name = 'Unknown'
         else:
             self.name = name
-        self.root_path = unicode(root_path)
-        print self.name, self.root_path
+        self.root_path = os.path.expanduser(root_path)
+        self.root_path = unicode(self.root_path)
+        print(self.name, self.root_path)
 
     def load_library(self):
         pass
@@ -121,7 +122,7 @@ class MusicMeta(object):
             return None
 
     def set_album(self, album):
-        self.track['TALB'] = TALB(encoding=3, text=album)
+        self.track['TALB'] = id3.TALB(encoding=3, text=album)
 
     def get_name(self):
         try:
@@ -130,13 +131,19 @@ class MusicMeta(object):
             return None
 
     def set_name(self, name):
-        self.track['TIT2'] = TIT2(encoding=3, text=name)
+        self.track['TIT2'] = id3.TIT2(encoding=3, text=name)
 
     def get_track_file(self):
         return self.__track_file
 
     def set_artists(self, artist_text):
-        self.track['TPE1'] = TPE1(encoding=3, text=artist_text)
+        self.track['TPE1'] = id3.TPE1(encoding=3, text=artist_text)
+
+    def inspect_tags(self, tags=['TALB', 'TIT2', 'TPE1']):
+        if set(tags).issubset(self.track.keys()):
+            return True
+        else:
+            return False
 
     def save(self):
         self.track.save()

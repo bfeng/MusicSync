@@ -11,6 +11,13 @@ def print_ID3(track_file):
     print mm
 
 
+def inspect_ID3(track_file):
+    mm = MusicMeta(track_file)
+    if not mm.inspect_tags():
+        cprint(track_file, "red")
+        print(mm)
+
+
 def fix_ID3(track_file, dryrun=True):
     nmm = NeteaseMusicMeta(track_file)
     nmm.fix_ID3()
@@ -81,6 +88,20 @@ class PrintAction(BaseAction):
         input_path = args['path']
         for track_path in input_path:
             print_ID3(track_path)
+
+
+class InspectAction(BaseAction):
+
+    def __init__(self):
+        super(InspectAction, self).__init__("inspect", "inspect id3 tags")
+
+    def attach_arguments(self, parser):
+        parser.add_argument("path", nargs='+', type=str, help="specify file path")
+
+    def execute(self, args):
+        input_path = args['path']
+        for track_path in input_path:
+            inspect_ID3(track_path)
 
 
 class CopyAction(BaseAction):

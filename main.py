@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-from musicsync.actions import FixAction, CopyAction, Copy2iTunesAction, PrintAction, DeleteID3Action
+from musicsync.actions import FixAction, CopyAction, Copy2iTunesAction, PrintAction, DeleteID3Action, InspectAction
 import argparse
 import sys
 reload(sys)
@@ -21,6 +21,7 @@ def main():
 
     attach_actions(subparsers, action_dict, FixAction())
     attach_actions(subparsers, action_dict, PrintAction())
+    attach_actions(subparsers, action_dict, InspectAction())
     attach_actions(subparsers, action_dict, CopyAction())
     attach_actions(subparsers, action_dict, Copy2iTunesAction())
     attach_actions(subparsers, action_dict, DeleteID3Action())
