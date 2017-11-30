@@ -3,7 +3,6 @@ from mutagen import File
 from mutagen import id3
 from pyItunes import Library
 import os
-import warnings
 import shutil
 import json
 from commons import decode_aes
@@ -37,7 +36,6 @@ class BaseLibraryManager(object):
             self.name = name
         self.root_path = os.path.expanduser(root_path)
         self.root_path = unicode(self.root_path)
-        print(self.name, self.root_path)
 
     def load_library(self):
         pass
@@ -56,7 +54,6 @@ class iTunesMusicLibraryManager(BaseLibraryManager):
         self.load_library()
 
     def load_library(self):
-        print self.__iTunes_library_xml
         l = Library(self.__iTunes_library_xml)
         for id, song in l.songs.items():
             if song.kind == 'MPEG audio file':
@@ -90,9 +87,8 @@ class NeteaseMusicLibraryManager(BaseLibraryManager):
             try:
                 track = NeteaseMusicMeta(track_file)
                 self.__tracks.append(track)
-                # print track
             except ValueError:
-                warnings.warn(u"Track not identified: {0}".format(track_file))
+                pass
 
     def get_all_tracks(self):
         return self.__tracks

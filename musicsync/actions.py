@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from __future__ import print_function
 from termcolor import cprint
 from models import SyncManager, MusicMeta, NeteaseMusicMeta
 from util import append_horizontal_line
@@ -8,7 +9,7 @@ from util import append_horizontal_line
 def print_ID3(track_file):
     mm = MusicMeta(track_file)
     cprint(track_file, "blue")
-    print mm
+    print(mm)
 
 
 def inspect_ID3(track_file):
@@ -23,7 +24,7 @@ def fix_ID3(track_file, dryrun=True):
     nmm.fix_ID3()
     if dryrun:
         cprint(track_file, "blue")
-        print nmm
+        print(nmm)
     else:
         nmm.save()
 
@@ -114,7 +115,7 @@ class CopyAction(BaseAction):
         parser.add_argument("to", help="to path")
 
     def execute(self, args):
-        print "cp", args['from'], args['to']
+        print("cp", args['from'], args['to'])
 
 
 class Copy2iTunesAction(BaseAction):
@@ -127,7 +128,7 @@ class Copy2iTunesAction(BaseAction):
         parser.add_argument("iTunes", help="Path to iTunes root folder")
 
     def execute(self, args):
-        print "cp_itunes", args['netease'], args['iTunes']
+        print("cp_itunes", args['netease'], args['iTunes'])
         netease_manager = SyncManager.new_library_manager('Netease', args['netease'])
         itunes_manager = SyncManager.new_library_manager('iTunes', args['iTunes'])
         # itunes_manager.pprint()
@@ -137,9 +138,7 @@ class Copy2iTunesAction(BaseAction):
                 track.save()
             one = itunes_manager.find_by_album_and_name(track.get_album(), track.get_name())
             if one is not None:
-                # print track
-                cprint(one[1], 'green')
-                # pass
+                pass
             else:
                 itunes_manager.copy_2_iTunes(track.get_track_file())
                 cprint(track.get_track_file(), 'red')
