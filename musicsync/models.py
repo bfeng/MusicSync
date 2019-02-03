@@ -1,11 +1,15 @@
 # -*- coding: utf-8 -*-
-from mutagen import File
-from mutagen import id3
-from pyItunes import Library
+from __future__ import print_function
+
+import json
 import os
 import shutil
-import json
+
+from mutagen import File
+from mutagen import id3
+
 from commons import decode_aes
+from pyItunes import Library
 
 white_space = ' \t\n\r'
 for i in range(0, 32):
@@ -48,7 +52,7 @@ class iTunesMusicLibraryManager(BaseLibraryManager):
 
     def __init__(self, root_path, name='iTunes'):
         super(iTunesMusicLibraryManager, self).__init__(root_path, name)
-        self.__iTunes_library_xml = root_path + '/iTunes Music Library.xml' # no unicode allowed
+        self.__iTunes_library_xml = root_path + '/iTunes Music Library.xml'  # no unicode allowed
         self.__iTunes_auto_add_path = self.root_path + u'/iTunes Media/Automatically Add to iTunes.localized'
         self.__tracks = []
         self.load_library()
@@ -59,9 +63,12 @@ class iTunesMusicLibraryManager(BaseLibraryManager):
             if song.kind == 'MPEG audio file':
                 self.__tracks.append(song)
 
+    def get_all_tracks(self):
+        return self.__tracks
+
     def pprint(self):
         for song in self.__tracks:
-            print song.name, song.location
+            print(song.name, song.location)
 
     def find_by_album_and_name(self, album, name):
         for song in self.__tracks:
@@ -135,6 +142,9 @@ class MusicMeta(object):
     def set_artists(self, artist_text):
         self.track['TPE1'] = id3.TPE1(encoding=3, text=artist_text)
 
+    def get_artists(self):
+        return self.track['TPE1']
+
     def inspect_tags(self, tags=['TALB', 'TIT2', 'TPE1']):
         if set(tags).issubset(self.track.keys()):
             return True
@@ -194,7 +204,7 @@ class NeteaseMusicMeta(MusicMeta):
                     self.set_artists(self.__parse_netease_music_artist())
             # copyright
             if "TCOP" in self.track:
-                del(self.track['TCOP'])
+                del (self.track['TCOP'])
             # genre
             if "TCON" in self.track:
-                del(self.track['TCON'])
+                del (self.track['TCON'])
