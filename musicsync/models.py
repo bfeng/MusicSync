@@ -107,6 +107,7 @@ class MusicMeta(object):
         self.__type = "MP3"
         self.__track_file = unicode(track_file)
         self.track = self.parse_tags(track_file)
+        self.modified = False
 
     def parse_tags(self, track_file):
         if track_file.upper().endswith(self.__type) is not True:
@@ -126,6 +127,7 @@ class MusicMeta(object):
 
     def set_album(self, album):
         self.track['TALB'] = id3.TALB(encoding=3, text=album)
+        self.modified = True
 
     def get_name(self):
         try:
@@ -135,15 +137,17 @@ class MusicMeta(object):
 
     def set_name(self, name):
         self.track['TIT2'] = id3.TIT2(encoding=3, text=name)
+        self.modified = True
 
     def get_track_file(self):
         return self.__track_file
 
     def set_artists(self, artist_text):
         self.track['TPE1'] = id3.TPE1(encoding=3, text=artist_text)
+        self.modified = True
 
     def get_artists(self):
-        return self.track['TPE1']
+        return self.track['TPE1'] if 'TPE1' in self.track else ''
 
     def inspect_tags(self, tags=['TALB', 'TIT2', 'TPE1']):
         if set(tags).issubset(self.track.keys()):
@@ -152,7 +156,8 @@ class MusicMeta(object):
             return False
 
     def save(self):
-        self.track.save()
+        if self.modified:
+            self.track.save()
 
 
 class iTunesMusicMeta(MusicMeta):

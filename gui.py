@@ -3,6 +3,8 @@ from __future__ import print_function
 
 import time
 
+from termcolor import cprint
+
 from musicsync.models import SyncManager
 
 try:
@@ -20,20 +22,29 @@ class MusicSyncApp(ttk.Frame):
     @staticmethod
     def insert_track(tree, track, missing):
         status = 'Missing' if missing else 'Okay'
-        iid = tree.insert('', 'end',
-                          text=track.get_name(),
-                          values=(track.get_name(), track.get_artists(), track.get_album(), status))
-        return iid
+        values = (track.get_name(), track.get_artists(), track.get_album(), status)
+        if track.is_fixable():
+            track.fix_ID3()
+            track.save()
+        if track and track.get_name():
+            iid = tree.insert('', 'end', text=track.get_name(), values=values)
+            return iid
+        else:
+            cprint("Skipped: " + track.get_track_file(), "red")
+        return None
 
     def run_sync(self):
         self.SYNC['state'] = "disabled"
         self.PB["value"] = 0
         self.PB["maximum"] = len(self.source_tree.selection())
         for item in self.source_tree.selection():
-            # print(self.source_tree.item(item))
-            track_file = self.to_copy[item].get_track_file()
+            track = self.to_copy[item]
+            if track.is_fixable():
+                track.fix_ID3()
+                track.save()
+            track_file = track.get_track_file()
             self.itunes.copy_2_iTunes(track_file)
-            print(track_file)
+            cprint("Copied: " + track_file, "blue")
             self.PB["value"] += 1
             time.sleep(.1)
             self.update()
@@ -52,13 +63,14 @@ class MusicSyncApp(ttk.Frame):
         if music_dir:
             self.PATHVAR.set(music_dir)
             self.netease = SyncManager.new_library_manager('Netease', music_dir)
-            self.itunes = SyncManager.new_library_manager('iTunes', '/Users/bfeng/Music/iTunes')
+            self.itunes = SyncManager.new_library_manager('iTunes', "/Users/%s/Music/iTunes" % self.user)
             tracks = self.netease.get_all_tracks()
             for t in tracks:
                 if self.itunes.find_by_album_and_name(t.get_album(), t.get_name()) is None:
                     iid = MusicSyncApp.insert_track(self.source_tree, t, True)
-                    self.source_tree.selection_add(iid)
-                    self.to_copy[iid] = t
+                    if iid:
+                        self.source_tree.selection_add(iid)
+                        self.to_copy[iid] = t
                 else:
                     iid = MusicSyncApp.insert_track(self.source_tree, t, False)
 
@@ -75,7 +87,6 @@ class MusicSyncApp(ttk.Frame):
         self.CHO = ttk.Button(top_frame, width=20, text="Choose path...", command=self.populate_trees)
         self.CHO.pack(side='left')
 
-        self.PATHVAR = tk.StringVar()
         self.PATHVAR.set("Please choose a path to load your songs")
         self.PATH = ttk.Entry(top_frame, state='readonly', textvariable=self.PATHVAR)
         self.PATH.pack(side='left', fill=tk.X, expand=True)
@@ -94,7 +105,8 @@ class MusicSyncApp(ttk.Frame):
 
         self.source_tree.pack(fill=tk.BOTH, expand=True)
 
-    def __init__(self, master=None):
+    def __init__(self, user, master=None):
+        self.user = user
         ttk.Frame.__init__(self, master, padding=20)
         master.title("Music Synchronization Toolkit")
         master.geometry('1280x720')
@@ -108,11 +120,17 @@ class MusicSyncApp(ttk.Frame):
         self.SYNC = None
         self.PB = None
         self.to_copy = {}
+        self.CHO = None
+        self.PATH = None
+        self.PATHVAR = tk.StringVar()
 
         self.create_widgets()
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    app = MusicSyncApp(root)
+    import getpass
+
+    user = getpass.getuser()
+    app = MusicSyncApp(user, root)
     app.mainloop()
